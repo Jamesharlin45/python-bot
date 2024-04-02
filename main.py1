@@ -1,0 +1,95 @@
+import requests
+from telegram.ext import Updater, CommandHandler
+ command handler for the /start command
+ Update, context: CallbackContext):
+    url = "https://www.aisportpredictor.com/v1/1x2"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.text
+        update.message.reply_text("Predictions: {}".format(data))
+    else:
+        update.message.reply_text("Failed to fetch data from the website.")
+
+def main():
+    # Create an Updater object and pass in your Telegram Bot API token
+    updater = Updater("7063519475:AAFP_0yMABi2z-IISasjPmxUFO3f-zm1p30", use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # Add a command handler for the /start command
+    dp.add_handler(CommandHandler("start", start))
+
+    # Start the Bot
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
+import json
+import requests
+from bs4 import BeautifulSoup
+
+def search_prediction():
+    ga1 = input("home score 1: ")
+    ga2 = input("home score 2: ")
+    ga3 = input("home score 3: ")
+    ga4 = input("home score 4: ")
+    ga5 = input("home score 5: ")
+
+    print("now give me the last five goals scored by the away team in order please")
+    gb1 = input("away score 1: ")
+    gb2 = input("away score 2: ")
+    gb3 = input("away score 3: ")
+    gb4 = input("away score 4: ")
+    gb5 = input("away score 5: ")
+
+    cookies = {
+        'PHPSESSID': 'acjmeds2te6jl0bqi72j29fadi',
+    }
+
+    headers = {
+        'Host': 'www.aisportpredictor.com',
+        'sec-ch-ua-mobile': '?1',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 11; TECNO CG6 Build/RP1A.200720.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.193 Mobile Safari/537.36',
+        'content-type': 'application/x-www-form-urlencoded',
+        'accept': '*/*',
+        'origin': 'https://www.aisportpredictor.com',
+        'x-requested-with': 'mark.via.gp',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-dest': 'empty',
+        'referer': 'https://www.aisportpredictor.com/v1/1x2',
+        'accept-language': 'en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7',
+    }
+
+    data = f"home={ga1},{ga2},{ga3},{ga4},{ga5}&away={gb1},{gb2},{gb3},{gb4},{gb5}"
+
+    params = {
+        'opt': '1X2',
+    }
+
+    response = requests.post(
+        'https://www.aisportpredictor.com/v1/results.php',
+        params=params,
+        cookies=cookies,
+        headers=headers,
+        data=data,
+    )
+
+    html_content = response.text
+    soup = BeautifulSoup(html_content, 'html.parser')
+    correct_score_element = soup.find('td', string='CORRECT SCORE')
+    correct_score_value = correct_score_element.find_next('td').text.strip()
+    
+    val_cs = correct_score_value.split(" - ")
+    home = int(val_cs[0])
+    away = int(val_cs[1])
+
+    guess = f"{home} - {away}"
+    print(guess)
+
+    return guess
+    
+search_prediction()
